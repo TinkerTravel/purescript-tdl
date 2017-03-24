@@ -14,7 +14,7 @@ exports.listen = function(conf) {
       services.forEach(function(vs) {
         app.post('/v' + vs.version + '/' + vs.service.value0, function(req, res) {
           var i = TDLJ.deserialize(req.body);
-          service.value1(i)(function(o) {
+          vs.service.value1(i)(function(o) {
             if (o instanceof Data_Either.Left) {
               res.status(500);
               res.end(o.value0);
