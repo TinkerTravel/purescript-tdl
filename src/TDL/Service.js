@@ -11,6 +11,13 @@ exports.listen = function(conf) {
     return function() {
       var app = express();
       app.use(bodyParser.json({strict: false}));
+      if (conf.enableCORS) {
+        app.use(function(req, res, next) {
+          res.header('Access-Control-Allow-Origin', '*');
+          res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+          next();
+        });
+      }
       services.forEach(function(vs) {
         app.post('/v' + vs.version + '/' + vs.service.value0, function(req, res) {
           var i = TDLJ.deserialize(req.body);

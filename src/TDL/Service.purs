@@ -10,6 +10,6 @@ import TDL.Support (Service(..))
 
 foreign import listen
   :: ∀ eff
-   . {host :: String, port :: Int}
+   . {host :: String, port :: Int, enableCORS :: Boolean}
   -> Array {version :: Int, service :: Service (http :: HTTP | eff)}
   -> Aff (http :: HTTP | eff) Unit
