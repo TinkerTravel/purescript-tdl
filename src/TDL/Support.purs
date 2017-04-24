@@ -28,8 +28,8 @@ import Data.ByteString (ByteString)
 import Data.ByteString as BS
 import Data.Either (Either(..), either)
 import Data.Foldable (and, foldMap, foldr)
-import Data.Int (round)
 import Data.Int.Bits ((.&.), shr)
+import Data.List (List)
 import Data.Map as Map
 import Data.Maybe (maybe)
 import Data.StrMap (StrMap, lookup)
@@ -54,12 +54,14 @@ hash = \s x -> go (s x) # sha256
     go (F64 f)     = tagF64    <> i32be (BS.length u) <> u where u = BS.toUTF8 (show f)
     go (Bool b)    = tagBool   <> BS.singleton (if b then 1 else 0)
     go (Array xs)  = tagArray  <> i32be (Array.length xs) <> foldMap go xs
-    go (Object xs) = tagObject <> i32be (round $ StrMap.size xs) <> foldMap pr prs
+    go (Object xs) = tagObject <> i32be (StrMap.size xs) <> foldMap pr prs
       where pr (k /\ v) = go (String k) <> go v
             -- StrMap is bad and guarantees no order. In fact StrMap.toList is
             -- an impure function. Hence convert to a Map first, which does
             -- guarantee order (by always being sorted).
-            prs = Map.toList $ Map.fromFoldable $ StrMap.toList xs
+            prs = mapToList $ Map.fromFoldable $ strMapToList xs
+            mapToList = Map.toUnfoldable :: _ -> List _
+            strMapToList = StrMap.toUnfoldable :: _ -> List _
 
     tagNull   = BS.singleton 0
     tagString = BS.singleton 1
